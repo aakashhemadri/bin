@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+git show --format=email HEAD | \
+	./scripts/checkpatch.pl --strict --codespell \
+	--codespellfile=$(python -c "import site; print(site.getsitepackages()[0])")/codespell_lib/data/dictionary.txt
