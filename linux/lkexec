@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+
+if [[ $EUID > 0 ]]; then # we can compare directly with this syntax.
+  echo "Please run as root/sudo"
+  exit 1
+else
+	kexec -l /boot/vmlinuz-linux-$1 --initrd=/boot/initramfs-linux-$1.img --reuse-cmdline
+#	kexec -p /boot/vmlinuz-linux-$1 --initrd=/boot/initramfs-linux-$1.img --append="root=/dev/nvme0n1p3 single irqpoll maxcpus=1 reset_devices"
+fi
+		#-hda /tmp/linux-vm-hdd.img

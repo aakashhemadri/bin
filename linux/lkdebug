@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+RAM=512
+
+if [[ $EUID > 0 ]]; then # we can compare directly with this syntax.
+  echo "Please run as root/sudo"
+  exit 1
+else
+	cp /boot/vmlinuz-linux-lts /boot/vmlinuz-linux-kdump
+	mkinitcpio -p linux-kdump
+	grub-mkconfig -o /boot/grub/grub.cfg
+fi
+		#-hda /tmp/linux-vm-hdd.img

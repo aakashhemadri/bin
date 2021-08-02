@@ -1,9 +1,63 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-make -j3 all
-make -j3 modules_install
-cp -f arch/x86_64/boot/bzImage /boot/vmlinuz-$1
-cp -f System.map /boot/
-mkinitcpio -p $1
-grub-mkconfig -o /boot/grub/grub.cfg
+if [[ $EUID == 0 ]]; then
+	echo "Please do not run as sudo"
+	exit 1
+fi
 
+tag=custom
+parameters="console=ttyS0 nokaslr"
+ram=512
+
+_main() {
+	while getopts "t:bvh" arg; do
+		case ${arg} in
+			t)
+				tag=${OPTARG}
+				;;
+			b)
+				_build
+				;;
+			v)
+				_vm
+				exit 1
+				;;
+			h | *)
+				_usage
+				exit 1
+				;;
+		esac
+	done
+}
+
+_build() {
+	# read -s -p "Enter password for sudo: " sudo_pass
+	echo -e ">> Building kernel..."
+	make -j$(nproc) all > /dev/null
+	echo ">> Installing modules..."
+	sudo make -j$(nproc) modules_install > /dev/null
+	sudo cp -f arch/x86_64/boot/bzImage /boot/vmlinuz-linux-${tag}
+	sudo cp -f System.map /boot/
+	sudo mkinitcpio -p ${tag}
+	sudo grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+_vm() {
+	qemu-system-x86_64 \
+		-kernel /boot/vmlinuz-linux-${tag} \
+		-initrd /boot/initramfs-linux-${tag}.img \
+		-append ${parameters} \
+		-enable-kvm \
+		-cpu host \
+		-nographic \
+		-m ${ram}
+}
+
+_usage() {
+	echo "Usage: $0 [-t <tag>] [-b] [-v] [-h]" 1>&2
+	exit 1
+}
+
+_main $@
