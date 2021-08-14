@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-IFS=$'\n\t'
-{
-nvim $HOME/bin/linux/$1
-exit 1
-}

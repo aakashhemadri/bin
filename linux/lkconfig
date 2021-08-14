@@ -1,5 +1,0 @@
-#!/usr/bin/bash
-
-zcat /proc/config.gz > .config
-lsmod > /tmp/my-lsmod
-make LSMOD=/tmp/my-lsmod localmodconfig
