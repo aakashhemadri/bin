@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# TODO:
+#	Fail on enconded binary
+
 set -eou pipefail
 IFS=$'\n\t'
 
